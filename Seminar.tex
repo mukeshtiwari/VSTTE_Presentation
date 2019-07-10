@@ -614,23 +614,13 @@ verifyDecryption (PublicKey q p g y) m (alpha, beta) [a, b, c, t] =
 
 \defverbatim[colored]\proofcorrectness{
 \begin{lstlisting}[language=haskell, basicstyle=\ttfamily\tiny]
-    Lemma pschulze_winners (grp : Group) (bs : list eballot) :
-       existsT (f : cand -> bool), ECount grp bs (ewinners f).
-    
-    Lemma final_correctness :
-    forall  (grp : Group) (bs : list ballot) (pbs : list pballot) (ebs : list eballot)
-      (w : cand -> bool)
-      (H : pbs = map (fun x => (fun c d => decrypt_message grp privatekey (x c d))) ebs)
-      (H2 : mapping_ballot_pballot bs pbs), (* valid b <-> valid pb *)
-      Count bs (winners w) -> ECount grp ebs (ewinners w).
-      
-     
-    Lemma final_correctness_rev :
-    forall  (grp : Group) (bs : list ballot) (pbs : list pballot) (ebs : list eballot)
-      (w : cand -> bool)
-      (H : pbs = map (fun x => (fun c d => decrypt_message grp privatekey (x c d))) ebs)
-      (H2 : mapping_ballot_pballot bs pbs), (* valid b <-> valid pb *)
-      ECount grp ebs (ewinners w) -> Count bs (winners w).
+   
+   forall (bs : list (ballot cand))
+       (ebs : list (eballot cand)) 
+       (w : cand -> bool), 
+       (* some details omitted *)
+       Count cand cand_all bs (winners cand w) <->
+       ECount cand cand_all ebs (ewinners cand w)
 \end{lstlisting}
 }
 
@@ -898,6 +888,8 @@ Can we guess the ballots from Margin matrix ?
 \begin{frame}
 \frametitle{Homomorphic Schulze (Pillars)}
 \begin{itemize}
+\item Is it possible to convince the voter that we (Electoral
+Authority) have counted all the ballots honestly ? \pause
 \item Homomorphic Encryption 
 \item Zero Knowledge Proof
 \end{itemize}
@@ -1251,6 +1243,15 @@ $$\bordermatrix{\text{}& Dirk & Mina & Caity \cr
 %\end{frame}
 
 \begin{frame}
+\frametitle{Correctness Proof} 
+If there one to one correspondence between plaintext ballots 
+and encrypted ballots, then computing winners via 
+plaintext ballot is same as encrypted ballot
+\proofcorrectness
+\end{frame}
+
+
+\begin{frame}
 \frametitle{Experimental Result}
 {\includegraphics[scale=0.40]{PlotVer3.png}}
 \end{frame}
@@ -1454,6 +1455,9 @@ $$\bordermatrix{\text{}& Dirk & Mina & Caity \cr
 %
 %\begin{frame}
 %\frametitle{Proof of correctness}
+%If there one to one correspondence between plaintext ballots 
+%and encrypted ballots, then computing winners via 
+%plaintext ballot is same as encrypted ballot
 %\proofcorrectness
 %\end{frame}
 
