@@ -85,6 +85,8 @@
 \usepackage{listings}
 \usepackage{pgfplots}
 \usepackage[all]{xy}
+\usepackage{multimedia}
+\usepackage{media9}
 \usepackage[font=Times, timeinterval= 59]{tdclock}
 \usetikzlibrary{positioning}
 \usetikzlibrary{shapes.geometric}
@@ -540,20 +542,40 @@ Lemma not_perm_persv_validity :
 \begin{frame}
 \frametitle{Talk Outline}
 \begin{itemize}
+%\item Promise
+\item Background
 \item Motivation
 \item Schulze Voting as Evidence Carrying Computation
 \item Scaling it to count millions ballot
 \item Verifiable Homomorphic Tallying for the Schulze Vote Counting Scheme
-\item Machine Checked Properties 
 \item Certificate : Verifying Elections Formally
+\item Machine Checked Properties 
+\item Contribution
 \item Future Work
 \end{itemize}
 \end{frame}
 
 
+\begin{frame}
+\frametitle{Introduction}
+{Free and fair elections are impossible without
+\textbf{Privacy, Verifiability} and \textbf{Correctness}. However, 
+it is almost next to impossible to achieve all three at the same time.}
+
+\end{frame}
+
 
 \begin{frame}
-\frametitle{Motivation}
+\frametitle{Background}
+{Let me take you back in time and imagine that 
+we in 1855. We are going to pub to cast our ballot for a democratic election. 
+In the pub, there is counter hanging on wall which shows how many votes 
+so far the running  candidates have. 
+We raise our hand in the public for the candidate which offers us
+beer or money or whatever you like. Everyone sees us to whom we 
+voted and the person at counter increments the votes for 
+that corresponding candidate}
+
 {Election held in 1855 in Victoria, Australia 
 	  was conducted in pub!}
 \begin{figure}
@@ -564,27 +586,73 @@ Lemma not_perm_persv_validity :
 %{\includegraphics[width=0.50\textwidth]{NorthBourke.jpg}}
 \end{frame}
 
-
 \begin{frame}
-\frametitle{Motivation}
-{2019 Election, NSW, Australia}
+\frametitle{Background}
+\begin{itemize}[]
+\item Pros 
+\begin{itemize}
+\item<.-> Correctness
+\item Verifiability
+\item Free Beer
+\end{itemize}
+\item Cons
+\begin{itemize}
+\item<.-> Corruption
+\item Intimidation
+\item Violence
+\item Unfair (women and poor were not allowed to even vote)
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+%\begin{frame}
+%  \frametitle{Embed this video https://www.youtube.com/watch?v=bWwR2CUNudA}
+%      \begin{tikzpicture}[remember picture,overlay]
+%         \node[anchor=south west, inner sep=0pt] at (current page.south west) {%
+%           \movie[height = \paperheight, width = \paperwidth, poster, showcontrols] {}{DRS2.mp4}%
+%         };
+%      \end{tikzpicture}
+%  \end{frame}
+ 
+ 
+   
+\begin{frame}
+\frametitle{Background}
+{In order to tackle to the various problems, Australians introduce 
+ secret ballot. You go to a secluded place and vote your favourite candidate without 
+ anyone knowing. 2019 Election, NSW, Australia}
 \begin{figure}
 	\begin{center}
 	\includegraphics[scale=0.50]{image-20160525-25209-cn3ftj.jpg}
 	\end{center}
   \end{figure}   
-%{\includegraphics[width=0.50\textwidth]{NorthBourke.jpg}}
 \end{frame}
 
+
 \begin{frame}
-\frametitle{Motivation}
+\frametitle{Background}
+\begin{itemize}[]
+\item Pros 
 \begin{itemize}
-\item What changed between 1855 and 2019 ? \pause
-\item From getting drunk on free beer and discussing issues of national 
-      importance, we have gone sober and eat democracy sausage! \pause
-\item Privacy \pause
-\item Verifiability \pause
+\item<.-> Privacy 
+\item No Violence
+\item No Kidnapping
 \end{itemize}
+\item Cons
+\begin{itemize}
+\item<.-> Correctness
+\item Verifiability
+\item Sadly, no free beer
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Background}
+{Now that we have privacy, how do we make sure that the counting 
+is correct and process is verifiable? Enter Scrutineers}
 \begin{figure}
 	\begin{center}
 	\includegraphics[scale=0.15]{scrutneers.jpg}
@@ -594,34 +662,157 @@ Lemma not_perm_persv_validity :
 
 
 \begin{frame}
-\frametitle{Motivation}
-\begin{itemize}
-\item What about Privacy and Verifiability in electronic voting ?
-\end{itemize}
+\frametitle{Background}
+{Slow for big countries like India}
 \begin{figure}
 	\begin{center}
-	\includegraphics[scale=0.30]{e-voting_worldmap_2015.pdf}
+	\includegraphics[scale=0.25]{uk-election.png}
 	\end{center}
-  \end{figure}
+  \end{figure} 
 \end{frame}
 
 \begin{frame}
+\frametitle{Background}
+{Costly}
+\begin{figure}
+	\begin{center}
+	\includegraphics[scale=0.25]{re-election.png}
+	\end{center}
+  \end{figure} 
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Background}
+{Logistic challenge for sparsely populated countries Australia }
+\begin{figure}
+	\begin{center}
+	\includegraphics[scale=0.20]{logistic.png}
+	\end{center}
+  \end{figure} 
+\end{frame}
+
+
+%
+%\begin{frame}
+%\frametitle{Background}
+%{Everything works great with paper ballot except}
+%\begin{itemize}
+%\item Slow for big countries like India
+%\item Counting is error prone for complex method like STV
+%\item Logistic challenge for sparsely populated countries Australia 
+%\end{itemize}
+%\end{frame}
+
+\begin{frame}
+\frametitle{Electronic Voting}
+{Enter the realm of Electronic Voting}
+\begin{figure}
+\includegraphics[scale=0.20]{e-voting-map.png}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Electronic Voting}
+{Could not configure the proper SSL certificates: FREAK Attack}
+\begin{figure}
+\includegraphics[scale=0.20]{Ausvoting.png}
+\end{figure}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Electronic Voting}
+{Security by obscurity: Easy to manipulate ballots by using a mobile phone}
+\begin{figure}
+\includegraphics[scale=0.20]{Indiavote.png}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Electronic Voting}
+{Parameter generation}
+\begin{figure}
+\includegraphics[scale=0.20]{swisspost.png}
+\end{figure}
+\end{frame}
+
+
+
+
+\begin{frame}
 \frametitle{Motivation}
+{Could not count properly}
 \begin{center}
 \begin{tikzpicture}
-  \node (img1) {\includegraphics[height=4cm]{Ausvoting.png}};
+  \node (img1) {\includegraphics[height=4cm]{counting-bug.png}};
   \pause
-  \node (img2) at (img1.south east) {\includegraphics[height=4cm]{Indiavote.png}};
-  \pause
-  \node (img3) at (img2.south west) [yshift=1cm] {\includegraphics[height=4cm]{swisspost.png}};
+  \node (img2) at (img1.south east) {\includegraphics[height=2cm]{explanation.png}};
+%  \pause
+%  \node (img3) at (img2.south west) [yshift=1cm] {\includegraphics[height=4cm]{swisspost.png}};
 \end{tikzpicture}
 \end{center}
 \end{frame}
 
+
+%\begin{frame}
+%\frametitle{Motivation}
+%\begin{figure}
+%	\begin{center}
+%	\includegraphics[scale=0.30]{e-voting_worldmap_2015.pdf}
+%	\end{center}
+%  \end{figure}
+%\end{frame}
+
+%
+%\begin{frame}
+%\frametitle{Electronic Voting}
+%{Countries in the Pink}
+%\begin{figure}
+%\includegraphics[scale=0.20]{e-voting-map.png}
+%\end{figure}
+%\end{frame}
+%
+%\begin{frame}
+%\frametitle{Withdrawn from Electronic Voting}
+%\begin{itemize}
+%\item Netherlands: Information Leakage
+%\item Germany: Not Verifiable
+%\end{itemize}
+%\end{frame}
+
+
+\begin{frame}
+\frametitle{Take Away: Very difficult to achieve in Electronic Setting}
+\begin{itemize}
+\item Correctness
+\item Verifiability
+\item Privacy
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{We have Demonstrated Correctness by}
+\begin{center}
+\begin{tikzpicture}
+  \node (img1) {\includegraphics[height=4cm]{javascript.png}};
+  \pause
+  \node (img2) at (img1.south east) {\includegraphics[height=6cm]{coq.png}};
+\end{tikzpicture}
+\end{center}
+
+\end{frame}
+
+
 \begin{frame}
 \frametitle{Definition and Assumption}
 
-\begin{itemize}[<+->]
+\begin{itemize}[]
 \item End to End verifiability
 \begin{itemize}
   \item<.-> every voter can verify that their ballot was cast as
@@ -638,6 +829,7 @@ Lemma not_perm_persv_validity :
 
 \end{itemize}
 \end{frame}
+
 
 \begin{frame}
 \frametitle{Schulze Voting as Evidence Carrying Computation [ITP 2017]}
