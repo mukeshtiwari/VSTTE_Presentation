@@ -115,20 +115,20 @@ Australian National University \\[1em] Research School of Computer Science% Your
 \defverbatim[colored]\lstf{
 \begin{lstlisting}[language=haskell, basicstyle=\ttfamily\scriptsize, commentstyle=\color{red}\ttfamily]
 {- Propositional Path -}
-Inductive Path (k: Z) : cand -> cand -> Prop :=     
-| unit c d : marg c d >= k -> Path k c d    
+Inductive Path (k: Z) : node -> node -> Prop :=     
+| unit c d : node_strength c d >= k -> Path k c d    
 | cons  c d e : 
-   marg c d >= k -> Path k d e -> Path k c e.
+   node_strength c d >= k -> Path k d e -> Path k c e.
    
 {- Notion of winner at prop level -}    
-Definition wins_prop (c: cand) := 
-  forall d : cand, exists k : Z,     
+Definition wins_prop (c: node) := 
+  forall d : node, exists k : Z,     
    Path k c d /\ 
    (forall l, Path l d c -> l <= k).   
 
 {- Notion of loser at prop level -}
-Definition loses_prop (c : cand) := 
-  exists k: Z, exists  d: cand,     
+Definition loses_prop (c : node) := 
+  exists k: Z, exists  d: node,     
    Path k d c /\ 
    (forall l, Path l c d -> l < k).
 \end{lstlisting}}
@@ -521,6 +521,31 @@ Lemma not_perm_persv_validity :
 		~valid A P <-> ~valid A (perm A P sig).
 \end{lstlisting}
 }
+
+\defverbatim[colored]\lsteighteen{
+\begin{lstlisting}[language=haskell, basicstyle=\ttfamily\scriptsize, commentstyle=\color{red}\ttfamily]
+
+{- Natural Number Definition-}
+Inductive nat :=
+| O : nat
+| Suc : nat -> nat.
+
+{- Addition on Natural Numbers -}
+Fixpoint add (n m : nat) : nat :=
+  match n with
+  | O => m
+  | Suc n' => Suc (add n' m)
+  end.
+
+{- Commutative Property  -}
+Theorem add_commute : forall (n m : nat), add n m = add m n.
+Proof.
+  (* proof terms omitted *)
+Qed.
+
+\end{lstlisting}
+}
+
 \frame{\titlepage}
 %\section[Table of contents]{}
 %\frame{\frametitle{Table of contents}\tableofcontents[sections={2-3}]}
@@ -555,14 +580,14 @@ Lemma not_perm_persv_validity :
 \end{itemize}
 \end{frame}
 
-
-\begin{frame}
-\frametitle{Introduction}
-{Free and fair elections are impossible without
-\textbf{Privacy, Verifiability} and \textbf{Correctness}. However, 
-it is almost next to impossible to achieve all three at the same time.}
-
-\end{frame}
+%
+%\begin{frame}
+%\frametitle{Introduction}
+%{Free and fair elections are impossible without
+%\textbf{Privacy, Verifiability} and \textbf{Correctness}. However, 
+%it is almost next to impossible to achieve all three at the same time.}
+%
+%\end{frame}
 
 
 \begin{frame}
@@ -636,29 +661,27 @@ that corresponding candidate}
 \item Pros 
 \begin{itemize}
 \item<.-> Privacy 
-\item No Violence
-\item No Kidnapping
+\item Verifiability
+\item Correctness
 \end{itemize}
 \item Cons
 \begin{itemize}
-\item<.-> Correctness
-\item Verifiability
 \item Sadly, no free beer
 \end{itemize}
 \end{itemize}
 \end{frame}
 
-
-\begin{frame}
-\frametitle{Background}
-{Now that we have privacy, how do we make sure that the counting 
-is correct and process is verifiable? Enter Scrutineers}
-\begin{figure}
-	\begin{center}
-	\includegraphics[scale=0.15]{scrutneers.jpg}
-	\end{center}
-  \end{figure}  
-\end{frame}
+%
+%\begin{frame}
+%\frametitle{Background}
+%{Now that we have privacy, how do we make sure that the counting 
+%is correct and process is verifiable? Enter Scrutineers}
+%\begin{figure}
+%	\begin{center}
+%	\includegraphics[scale=0.15]{scrutneers.jpg}
+%	\end{center}
+%  \end{figure}  
+%\end{frame}
 
 
 \begin{frame}
@@ -751,8 +774,6 @@ is correct and process is verifiable? Enter Scrutineers}
   \node (img1) {\includegraphics[height=4cm]{counting-bug.png}};
   \pause
   \node (img2) at (img1.south east) {\includegraphics[height=2cm]{explanation.png}};
-%  \pause
-%  \node (img3) at (img2.south west) [yshift=1cm] {\includegraphics[height=4cm]{swisspost.png}};
 \end{tikzpicture}
 \end{center}
 \end{frame}
@@ -767,22 +788,22 @@ is correct and process is verifiable? Enter Scrutineers}
 %  \end{figure}
 %\end{frame}
 
-%
-%\begin{frame}
-%\frametitle{Electronic Voting}
-%{Countries in the Pink}
-%\begin{figure}
-%\includegraphics[scale=0.20]{e-voting-map.png}
-%\end{figure}
-%\end{frame}
-%
-%\begin{frame}
-%\frametitle{Withdrawn from Electronic Voting}
-%\begin{itemize}
-%\item Netherlands: Information Leakage
-%\item Germany: Not Verifiable
-%\end{itemize}
-%\end{frame}
+
+\begin{frame}
+\frametitle{Electronic Voting}
+{Countries in the Pink}
+\begin{figure}
+\includegraphics[scale=0.20]{e-voting-map.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{Withdrawn from Electronic Voting}
+\begin{itemize}
+\item Netherlands: Information Leakage
+\item Germany: Not Verifiable
+\end{itemize}
+\end{frame}
 
 
 \begin{frame}
@@ -797,22 +818,33 @@ is correct and process is verifiable? Enter Scrutineers}
 
 
 \begin{frame}
-\frametitle{We have Demonstrated Correctness by}
+\frametitle{Correctness by }
 \begin{center}
 \begin{tikzpicture}
-  \node (img1) {\includegraphics[height=4cm]{javascript.png}};
-  \pause
-  \node (img2) at (img1.south east) {\includegraphics[height=6cm]{coq.png}};
+  \node (img1) {\includegraphics[height=6cm]{coq.png}};
+%  \pause
+%  \node (img2) at (img1.south east) {\includegraphics[height=6cm]{coq.png}};
 \end{tikzpicture}
 \end{center}
+\end{frame}
 
+\begin{frame}
+\frametitle{Coq in Action}
+{Natural Number with addition function and proof of 
+commutativity and associativity}
+\lsteighteen
 \end{frame}
 
 
 \begin{frame}
-\frametitle{Definition and Assumption}
+\frametitle{Coq in Action}
+{Graph Theory}
+\lstf
+\end{frame}
 
-\begin{itemize}[]
+\begin{frame}
+\frametitle{Definition and Assumption}
+\begin{itemize}
 \item End to End verifiability
 \begin{itemize}
   \item<.-> every voter can verify that their ballot was cast as
@@ -824,26 +856,113 @@ is correct and process is verifiable? Enter Scrutineers}
 \end{itemize}
 
 %\item We are not concern with any front end activity
-\item We assume first two part of "End to End verifiability" and work on
+\item We assume first two part of \textit{End to End verifiability} and work on
       third part.
+\end{itemize}
+\end{frame}
 
+
+
+\begin{frame}
+\frametitle{Verifiability by Scrutiny Sheet}
+\lstnineth
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Privacy by Homomorphic Encryption}
+\begin{itemize}
+\item A encryption scheme is homomorphic if for any two plaintext $x$ and $y$:
+$Enc_{pk}(x) \bigotimes Enc_{pk}(y) = Enc_{pk} (x \bigoplus y)$
+\item $Enc(m_{1}, r_{1}) := (g^{r_{1}}, g^{m_{1}} *  h^{r_{1}})$ 
+\item $Enc(m_{2}, r_{2}) := (g^{r_{2}}, g^{m_{2}} *  h^{r_{2}})$
+\item  $Enc(m_{1}, r_{1})  * Enc(m_{2}, r_{2}) $ =  ($g^{r_{1} + r_{2}}$, $g^{m_{1} + m_{2}} * h^{r_{1} + r_{2}}$) 		
+		
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{In Reality, it looks more messy}
+$g = 4, h = 49228593607874990954666071614777776087$
+ (134496451437300221012286033361707130093, 102227210111257780065764179227658264107)
+ 
+ (90549562016409048906553052880573051723, 149737664809130232173423485580305447580)
+  
+ (111838646913099268144525651231935275385, 23076766166773179621624801755228562722) 
+ 
+ (163609675266885117507253145530469574507, 136840925491933116006881481565552266698)
+% (79248907920406812537389036699896088139, 46347343081571464310476936648567024138)
+% (123866687819159436288533311854341351671, 147511135596830390870297120177829059519)
+% (50398592318313244808461064689068665943, 53262724480261770219974712577122611417)
+% (7017345267197193636466005866496039911, 68311911432471947228868781091036768394)
+% (23649424831721765685116725354379513587, 82314118594242117678180792762644770882)
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Zero-Knowledge-Proof}
+{Did you all trust me when I claimed that the all the values are encryption of 0?}
+\begin{figure}
+\includegraphics[scale=0.30]{pilot.png}
+\end{figure}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Zero-Knowledge-Proof}
+\begin{itemize}
+\item Given a public parameters $(G, g, p, h)$ and private parameter $x$ such that $h := g^x$.
+\item Claim: message $m$  is honest decryption of $(c_{1}, c_{2})$ (where $c_{1} = g^r$ and $c_{2} = g^{m} * h^{r}$)
+\item Proof: $(g, h, c_{1}, c_{2} \cdot g^{-m})$ is a \textit{Diffie Hellman} tuple 
 \end{itemize}
 \end{frame}
 
 
 \begin{frame}
-\frametitle{Schulze Voting as Evidence Carrying Computation [ITP 2017]}
-\begin{itemize}[<+->]
+\frametitle{Zero-Knowledge-Proof}
+\textbf{Diffie Hellman Tuple:} a tuple $(g, h, u, v)$ is 
+ a \textit{Diffie Hellman} tuple if there $\exists$ $w \mid$
+ $u = g^w \land v = h^w$. 
+ 
+ \begin{itemize}
+ \item $P$ chooses a random $r$ and sends $a=g^r$ and $b = h^r$.
+ \item $V$ sends a random $e$
+ \item $P$ sends $z =r + e \cdot w$
+ \item $V$ check $g^z = a \cdot u^e$ and $h^z = b\cdot v^e$ 
+ \end{itemize}
+ $g^z = g^{r + e \cdot w} = a \cdot (g^w)^e = a \cdot u^e $\\
+ $h^z = h^{r + e \cdot w} = b \cdot (h^w)^e = b \cdot v^e$
+\end{frame}
+
+\begin{frame}
+\frametitle{Zero-Knowledge-Proof}
+{Claimed: $(g, h, c_{1}, c_{2} \cdot g^{-m})$ is a \textit{Diffie Hellman} tuple}
+$(g, h, c_{1}, c_{2} \cdot g^{-m})$\\
+$ = (g, h, g^r, g^m \cdot h^r \cdot g^{-m})$ \\
+$ = (g, h, g^r, h^r)$ \\
+$ = (g, h, u, v)$\\ 
+{Could I have faked it?} \\
+$(g, h, g^r, g^m \cdot h^r \cdot g^{-m_{1}})$ \\
+$ = (g, h, g^r, h^r \cdot g^{m - m_{1}})$
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Schulze Voting as Evidence Carrying Computation}
+\begin{itemize}[]
 \item Pros 
 \begin{itemize}
-\item<.-> Formally verified implementation in Coq
+\item Formally verified implementation in Coq
 \item Verifiable because we generate certificate
 \item Certificates are accessible to anyone with 
       basic math literacy
 \end{itemize}
 \item Cons
 \begin{itemize}
-\item<.-> Horribly slow and not practical for real life election
+\item Horribly slow and not practical for real life election
 \item No privacy and possibly susceptible to coercion
 \end{itemize}
 \end{itemize}
@@ -851,11 +970,11 @@ is correct and process is verifiable? Enter Scrutineers}
 
 
 \begin{frame}
-\frametitle{Scaling it to count millions ballot [Evote 2017]}
-\begin{itemize}[<+->]
+\frametitle{Scaling it to count millions ballot }
+\begin{itemize}[]
 \item Pros 
 \begin{itemize}
-\item<.-> Formally verified implementation in Coq
+\item Formally verified implementation in Coq
 \item Verifiable because we generate certificate
 \item Certificates are accessible to anyone with 
       basic math literacy
@@ -866,24 +985,16 @@ is correct and process is verifiable? Enter Scrutineers}
 \item No privacy and possibly susceptible to coercion
 \end{itemize}
 \end{itemize}
-
-%\begin{itemize}
-%\item Source code formally verified in Coq
-%\item Verifiable because we generate certificate 
-%\item Blazing fast
-%\item Shortcomings
-%\item No privacy
-%\end{itemize}
 \end{frame}
 
 
 
 \begin{frame}
-\frametitle{Verifiable Homomorphic Tallying for the Schulze Vote Counting Scheme [VSTTE 2019]}
-\begin{itemize}[<+->]
+\frametitle{Verifiable Homomorphic Tallying for the Schulze Vote Counting Scheme}
+\begin{itemize}[]
 \item Pros 
 \begin{itemize}
-\item<.-> Formally verified implementation in Coq assuming axioms on 
+\item Formally verified implementation in Coq assuming axioms on 
           the cryptographic primitives 
 \item Verifiable because we generate certificate 
 \item Privacy because we don't reveal the content of ballots
@@ -900,17 +1011,7 @@ is correct and process is verifiable? Enter Scrutineers}
 
 
 \begin{frame}
-\frametitle{Machine Check Properties [On Going CPP 2020 ?]}
-\begin{itemize}
-\item Condercet Winner (Finished)
-\item Reversal symmetry (Almost There)
-\item Monotonicity
-\item Smith Set
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{Certificate : Verifying Elections Formally [CCS 2019]}
+\frametitle{Certificate : Verifying Elections Formally}
 \begin{itemize}
 \item We developed a general framework for Sigma Protocol
 \item Instantiate with IACR 2018 election data
@@ -919,6 +1020,55 @@ is correct and process is verifiable? Enter Scrutineers}
 \end{itemize}
 \end{frame}
 
+
+
+\begin{frame}
+\frametitle{Machine Check Properties}
+\begin{itemize}
+\item Condercet Winner (Finished)
+\item Reversal symmetry (Finished)
+\item Monotonicity
+\item Smith Set
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Future Work}
+\begin{itemize}
+\item Formalizing cryptographic code (Shuffle Proof)
+\item Formalizing the properties of Schulze method
+\item Formaly verified checker 
+\item Risk Limiting Audit 
+\item Formalizing Code Extraction (Not related to our project, but highly needed for electronic voting)
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Publications}
+\begin{enumerate}
+	\item Pattinson, D. and Tiwari, M., 2017. Schulze Voting as Evidence carrying computation. In Proc. 
+	ITP 2017, vol. 10499 of Lecture Notes in Computer Science, 410–426. Springer. 
+	\item Lyria Bennett Moses, Rajeev Goré, Ron Levy, Dirk Pattinson, Mukesh Tiwari.
+	No More Excuses: Automated Synthesis of Practical and Verifiable Vote-Counting Programs for Complex 
+	Voting 	Schemes. E-VOTE-ID 2017: 66-83
+	\item Thomas Haines, Dirk Pattinson, and Mukesh Tiwari. 2019. 
+	  Verifiable Homomorphic Tallying for the Schulze Vote Counting Scheme. 
+	  11th International Conference Verified Software: Theories, Tools, and Experiments. 
+      VSTTE 2019 (to appear)	
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}
+\frametitle{Publications}
+\begin{enumerate}
+	 
+	\item Thomas Haines, Rajeev Goré, and Mukesh Tiwari. 2019. Verified Verifiers for Verifying Elections. 
+	 In Proceedings of the 2019 ACM SIGSAC Conference on Computer and Communications Security (CCS '19)
+	 
+	 \item Milad K. Ghale, Rajeev Goré, Dirk Pattinson, Mukesh Tiwari.
+	Modular Formalisation and Verification of STV Algorithms. E-Vote-ID 2018: 51-66
+	\end{enumerate}
+\end{frame}
 %
 %
 %\begin{frame}
@@ -1253,11 +1403,11 @@ is correct and process is verifiable? Enter Scrutineers}
 %
 %\end{itemize}
 %\end{frame}
-
-\begin{frame}
-\frametitle{Certificate}
-\lstnineth
-\end{frame}
+%
+%\begin{frame}
+%\frametitle{Certificate}
+%\lstnineth
+%\end{frame}
 
 %\begin{frame}
 %\frametitle{Certificate}
@@ -1373,16 +1523,16 @@ is correct and process is verifiable? Enter Scrutineers}
 %\lstsixteen
 %\end{frame}
 
-
-\begin{frame}
-\frametitle{Future Work}
-\begin{itemize}
-\item See all of you again in December of final presentation [December 2019]
-\item Risk limiting audit
-\item Verifying the cryptographic code
-\end{itemize}
-
-\end{frame}
+%
+%\begin{frame}
+%\frametitle{Future Work}
+%\begin{itemize}
+%\item See all of you again in December of final presentation [December 2019]
+%\item Risk limiting audit
+%\item Verifying the cryptographic code
+%\end{itemize}
+%
+%\end{frame}
 
 \begin{frame}
 \begin{center}
