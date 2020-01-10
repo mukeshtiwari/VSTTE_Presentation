@@ -116,9 +116,9 @@ Australian National University \\[1em] Research School of Computer Science% Your
 \begin{lstlisting}[language=haskell, basicstyle=\ttfamily\scriptsize, commentstyle=\color{red}\ttfamily]
 {- Propositional Path -}
 Inductive Path (k: Z) : node -> node -> Prop :=     
-| unit c d : node_strength c d >= k -> Path k c d    
+| unit c d : m c d >= k -> Path k c d    
 | cons  c d e : 
-   node_strength c d >= k -> Path k d e -> Path k c e.
+    m c d >= k -> Path k d e -> Path k c e.
    
 {- Notion of winner at prop level -}    
 Definition wins_prop (c: node) := 
@@ -564,23 +564,23 @@ Qed.
 %\includegraphics[scale=0.20]{Electronic_voting_2.png}
 %\end{frame}
 
-\begin{frame}
-\frametitle{Talk Outline}
-\begin{itemize}
-%\item Promise
-\item Background
-\item Motivation
-\item Schulze Voting as Evidence Carrying Computation
-\item Scaling it to count millions ballot
-\item Verifiable Homomorphic Tallying for the Schulze Vote Counting Scheme
-\item Certificate : Verifying Elections Formally
-\item Machine Checked Properties 
-\item Contribution
-\item Future Work
-\end{itemize}
-\end{frame}
+%\begin{frame}
+%\frametitle{Talk Outline}
+%\begin{itemize}
+%%\item Promise
+%\item Background
+%\item Motivation
+%\item Schulze Voting as Evidence Carrying Computation
+%\item Scaling it to count millions ballot
+%\item Verifiable Homomorphic Tallying for the Schulze Vote Counting Scheme
+%\item Certificate : Verifying Elections Formally
+%\item Machine Checked Properties 
+%\item Contribution
+%\item Future Work
+%\end{itemize}
+%\end{frame}
 
-%
+
 %\begin{frame}
 %\frametitle{Introduction}
 %{Free and fair elections are impossible without
@@ -592,14 +592,14 @@ Qed.
 
 \begin{frame}
 \frametitle{Background}
-{Let me take you back in time and imagine that 
-we in 1855. We are going to pub to cast our ballot for a democratic election. 
-In the pub, there is counter hanging on wall which shows how many votes 
-so far the running  candidates have. 
-We raise our hand in the public for the candidate which offers us
-beer or money or whatever you like. Everyone sees us to whom we 
-voted and the person at counter increments the votes for 
-that corresponding candidate}
+%{Let me take you back in time and imagine that 
+%we in 1855. We are going to pub to cast our ballot for a democratic election. 
+%In the pub, there is counter hanging on wall which shows how many votes 
+%so far the running  candidates have. 
+%We raise our hand in the public for the candidate which offers us
+%beer or money or whatever you like. Everyone sees us to whom we 
+%voted and the person at counter increments the votes for 
+%that corresponding candidate}
 
 {Election held in 1855 in Victoria, Australia 
 	  was conducted in pub!}
@@ -644,9 +644,10 @@ that corresponding candidate}
    
 \begin{frame}
 \frametitle{Background}
-{In order to tackle to the various problems, Australians introduce 
- secret ballot. You go to a secluded place and vote your favourite candidate without 
- anyone knowing. 2019 Election, NSW, Australia}
+%{In order to tackle to the various problems, Australians introduce 
+% secret ballot. You go to a secluded place and vote your favourite candidate without 
+% anyone knowing.}
+ {2019 Election, NSW, Australia}
 \begin{figure}
 	\begin{center}
 	\includegraphics[scale=0.50]{image-20160525-25209-cn3ftj.jpg}
@@ -686,7 +687,7 @@ that corresponding candidate}
 
 \begin{frame}
 \frametitle{Background}
-{Slow for big countries like India}
+%{Slow}
 \begin{figure}
 	\begin{center}
 	\includegraphics[scale=0.25]{uk-election.png}
@@ -696,7 +697,7 @@ that corresponding candidate}
 
 \begin{frame}
 \frametitle{Background}
-{Costly}
+%{Costly}
 \begin{figure}
 	\begin{center}
 	\includegraphics[scale=0.25]{re-election.png}
@@ -707,10 +708,10 @@ that corresponding candidate}
 
 \begin{frame}
 \frametitle{Background}
-{Logistic challenge for sparsely populated countries Australia }
+%{Logistic Challenge}
 \begin{figure}
 	\begin{center}
-	\includegraphics[scale=0.20]{logistic.png}
+	\includegraphics[scale=0.25]{logistic.png}
 	\end{center}
   \end{figure} 
 \end{frame}
@@ -729,7 +730,7 @@ that corresponding candidate}
 
 \begin{frame}
 \frametitle{Electronic Voting}
-{Enter the realm of Electronic Voting}
+%{Enter the realm of Electronic Voting}
 \begin{figure}
 \includegraphics[scale=0.20]{e-voting-map.png}
 \end{figure}
@@ -738,7 +739,7 @@ that corresponding candidate}
 
 \begin{frame}
 \frametitle{Electronic Voting}
-{Could not configure the proper SSL certificates: FREAK Attack}
+% {Could not configure the proper SSL certificates: FREAK Attack}
 \begin{figure}
 \includegraphics[scale=0.20]{Ausvoting.png}
 \end{figure}
@@ -748,7 +749,7 @@ that corresponding candidate}
 
 \begin{frame}
 \frametitle{Electronic Voting}
-{Security by obscurity: Easy to manipulate ballots by using a mobile phone}
+%{Security by obscurity}
 \begin{figure}
 \includegraphics[scale=0.20]{Indiavote.png}
 \end{figure}
@@ -757,7 +758,7 @@ that corresponding candidate}
 
 \begin{frame}
 \frametitle{Electronic Voting}
-{Parameter generation}
+%{Parameter generation}
 \begin{figure}
 \includegraphics[scale=0.20]{swisspost.png}
 \end{figure}
@@ -767,8 +768,8 @@ that corresponding candidate}
 
 
 \begin{frame}
-\frametitle{Motivation}
-{Could not count properly}
+\frametitle{Electronic Voting}
+%{Could not count properly}
 \begin{center}
 \begin{tikzpicture}
   \node (img1) {\includegraphics[height=4cm]{counting-bug.png}};
@@ -807,7 +808,7 @@ that corresponding candidate}
 
 
 \begin{frame}
-\frametitle{Take Away: Very difficult to achieve in Electronic Setting}
+\frametitle{Motivation}
 \begin{itemize}
 \item Correctness
 \item Verifiability
@@ -817,8 +818,127 @@ that corresponding candidate}
 
 
 
+
+
+
 \begin{frame}
-\frametitle{Correctness by }
+\frametitle{Schulze Method}
+
+\begin{itemize}
+\item Candidate set $C$ = $\{c1,\dots,cm\}$
+ \item Vote multiset  $P$ = $\{b1,\dots,bn\}$
+ \item Vote is represented as function $b: C \rightarrow \mathbb{N}$
+
+   \begin{center}
+   
+  
+	%\begin{wrapfigure}[14]{r}[0cm]{0.4\textwidth}
+  %\begin{center}
+    %\raisebox{0pt}[-1cm]
+    \raisebox{0pt}[\dimexpr\height-0.5\baselineskip\relax]
+    {\includegraphics[width=0.37\textwidth]{bal-cropped.pdf}}
+    \raisebox{0pt}[\dimexpr\height-8.5\baselineskip\relax]{}
+     \end{center}
+    %\includegraphics[width=4cm]{ballot.png}
+  %\end{center}
+  %\end{wrapfigure}
+ \end{itemize}
+ \end{frame}
+
+
+%
+%\begin{frame}
+%\frametitle{Schulze Method}
+%\begin{itemize}
+%
+%
+%%\item The \emph{margin function} $m(c, d)$ as the number of
+%\item ballots that strictly prefer $c$ over $d$, minus the number of
+%         ballots that strictly prefer $d$ over $c$\pause
+%\item Schulze voting considers \emph{paths} of the form \[\xymatrix@C=10ex{ c_1  \ar[r]^{m(c_1, c_2)} & c_2   \ar[r]^{m(c_2,c_3)} & c_3 \ar@{}[r]|{\dots} & c_{n-1}   \ar[r]^{m(c_{n-1}, c_n)} & c_n } \]\pause
+%\item  Path-based margin  between $c_1$ and $c_n$ is $\min \lbrace m(c_i, c_{i+1} \mid 1 \leq i < n \rbrace$\pause 
+%\item The \emph{generalised margin} between two candidates $c$ and $d$ is the largest path-based margin considering all possible paths between $c$ and $d$.
+%
+%\end{itemize}
+%\end{frame}
+
+\begin{frame}
+\frametitle{Schulze Method}
+\begin{itemize}
+
+\item Construct a margin function (matrix) $m: C \times C \to \mathbb{Z}$. 
+
+\[
+  m(c, d) = \sharp \lbrace b \in P \mid c >_b d \rbrace -
+            \sharp \lbrace b \in P \mid d >_b c \rbrace
+\] 
+\item We will interpret the margin function m as a graph, say G.
+\end{itemize}
+\end{frame}
+
+%\begin{frame}
+%\frametitle{Schulze Method}
+%\begin{itemize}
+%\item Example of Graph G (collective preferences can be cyclic, even if the preferences of individual voters are not cyclic). The main idea of the method is to resolve cycles by considering \emph{transitive preferences} or a generalised notion of margin.
+%\[
+%\xymatrix@R=12ex@C=12ex{
+%A \ar@/^/[rr]^{3} \ar@/_/[dr]_{-1} & & B \ar@/^/[ll]^{-3}
+%\ar@/^/[dl]^5 \\
+%& C \ar@/_/[ul]_{1} \ar@/^/[ur]^{-5}
+%}\]
+%\end{itemize}
+%\end{frame}
+
+
+\begin{frame}
+\frametitle{Schulze Method}
+\begin{itemize}
+
+\item A directed \emph{path} in $G$ from
+candidate $c$ to candidate $d$ is a sequence 
+%$p \equiv c_0, \dots, c_{n+1}$
+%of candidates with $c_0 = c$ and $c_{n+1} = d$ ($n \geq 0$)
+ \[\xymatrix@C=10ex{ c  \ar[r]^{m(c, c_1)} & c_1   \ar[r]^{m(c_1,c_2)} & c_2 \ar@{}[r]|{\dots} & c_{n}   \ar[r]^{m(c_{n}, d)} & d } \]
+
+\item The strength, st, of a path in $G$ is
+\[ st(c_0, \dots, c_{n+1}) = \min \lbrace m (c_i, c_{i+1}) \mid 0
+\leq i \leq n \rbrace. \]
+%
+% and the
+%\emph{strength}, st, of path, p, is the minimum margin of adjacent
+%nodes, i.e.
+%\[ st(c_0, \dots, c_{n+1}) = \min \lbrace m (c_i, c_{i+1}) \mid 0
+%\leq i \leq n \rbrace. \]
+% \[\xymatrix@C=10ex{ c_0  \ar[r]^{m(c_0, c_1)} & c_1   \ar[r]^{m(c_1,c_2)} & c_2 \ar@{}[r]|{\dots} & c_{n}   \ar[r]^{m(c_{n}, c_{n + 1})} & c_{n+1} } \]
+%\item We compute the generalized margin, $M$, between two candidate $c$ $d$ as 
+%  	\[ M(c, d) = \max \lbrace st (p) : \text{p is path from c to d in G} \rbrace\]
+%
+%%For candidates c and d, let $S(c, d)$ denote the maximum strength, or generalized margin of a path
+%%	from c to d i.e. 
+%%	\[ S(c, d) = \max \lbrace st (p) : \text{p is path from c to d in G} \rbrace\]
+%%	
+%\item The winning set (always non empty) is defined as 
+% \[ W =  \lbrace c \in C : \forall d \in C \setminus \{c\}, S (c, d) \geq S (d, c) \rbrace\]
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Schulze Method}
+\begin{itemize}
+\item We compute the generalized margin, $M$, between two candidate $c$ $d$ as 
+  	\[ M(c, d) = \max \lbrace st (p) : \text{p is path from c to d in G} \rbrace\]
+ 
+ \item  	The winning set is defined as 
+ \[ W =  \lbrace c \in C : \forall d \in C \setminus \{c\}, M (c, d) \geq M (d, c) \rbrace\]
+
+
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Correctness}
 \begin{center}
 \begin{tikzpicture}
   \node (img1) {\includegraphics[height=6cm]{coq.png}};
@@ -843,7 +963,7 @@ commutativity and associativity}
 \end{frame}
 
 \begin{frame}
-\frametitle{Definition and Assumption}
+\frametitle{Verifiability (Assumption)}
 \begin{itemize}
 \item End to End verifiability
 \begin{itemize}
@@ -1107,7 +1227,7 @@ $ = (g, h, g^r, h^r \cdot g^{m - m_{1}})$
 %\item The main idea of the method is to resolve cycles by considering \emph{transitive preferences} or a generalised notion of margin.
 %\end{itemize}
 %\end{frame}
-
+%
 %\begin{frame}
 %\frametitle{Schulze Method}
 %
@@ -1127,14 +1247,14 @@ $ = (g, h, g^r, h^r \cdot g^{m - m_{1}})$
 %    %\includegraphics[width=4cm]{ballot.png}
 %  %\end{center}
 %  %\end{wrapfigure}
-
-
-
-
-
-
-
-%\item The \emph{margin function} $m(c, d)$ as the number of
+%
+%
+%
+%
+%
+%
+%
+%%\item The \emph{margin function} $m(c, d)$ as the number of
 %ballots that strictly prefer $c$ over $d$, minus the number of
 %ballots that strictly prefer $d$ over $c$\pause
 %\item Schulze voting considers \emph{paths} of the form \[\xymatrix@C=10ex{ c_1  \ar[r]^{m(c_1, c_2)} & c_2   \ar[r]^{m(c_2,c_3)} & c_3 \ar@{}[r]|{\dots} & c_{n-1}   \ar[r]^{m(c_{n-1}, c_n)} & c_n } \]\pause
@@ -1143,8 +1263,8 @@ $ = (g, h, g^r, h^r \cdot g^{m - m_{1}})$
 %
 %\end{itemize}
 %\end{frame}
-
 %
+%%
 %\begin{frame}
 %\frametitle{Schulze Method}
 %\begin{itemize}
