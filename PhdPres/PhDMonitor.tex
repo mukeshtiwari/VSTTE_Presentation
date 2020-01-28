@@ -85,6 +85,8 @@
 \usepackage{listings}
 \usepackage{pgfplots}
 \usepackage[all]{xy}
+\usepackage{multimedia}
+\usepackage{media9}
 \usepackage[font=Times, timeinterval= 59]{tdclock}
 \usetikzlibrary{positioning}
 \usetikzlibrary{shapes.geometric}
@@ -113,20 +115,20 @@ Australian National University \\[1em] Research School of Computer Science% Your
 \defverbatim[colored]\lstf{
 \begin{lstlisting}[language=haskell, basicstyle=\ttfamily\scriptsize, commentstyle=\color{red}\ttfamily]
 {- Propositional Path -}
-Inductive Path (k: Z) : cand -> cand -> Prop :=     
-| unit c d : marg c d >= k -> Path k c d    
+Inductive Path (k: Z) : node -> node -> Prop :=     
+| unit c d : m c d >= k -> Path k c d    
 | cons  c d e : 
-   marg c d >= k -> Path k d e -> Path k c e.
+    m c d >= k -> Path k d e -> Path k c e.
    
 {- Notion of winner at prop level -}    
-Definition wins_prop (c: cand) := 
-  forall d : cand, exists k : Z,     
+Definition wins_prop (c: node) := 
+  forall d : node, exists k : Z,     
    Path k c d /\ 
    (forall l, Path l d c -> l <= k).   
 
 {- Notion of loser at prop level -}
-Definition loses_prop (c : cand) := 
-  exists k: Z, exists  d: cand,     
+Definition loses_prop (c : node) := 
+  exists k: Z, exists  d: node,     
    Path k d c /\ 
    (forall l, Path l c d -> l < k).
 \end{lstlisting}}
@@ -519,6 +521,31 @@ Lemma not_perm_persv_validity :
 		~valid A P <-> ~valid A (perm A P sig).
 \end{lstlisting}
 }
+
+\defverbatim[colored]\lsteighteen{
+\begin{lstlisting}[language=haskell, basicstyle=\ttfamily\scriptsize, commentstyle=\color{red}\ttfamily]
+
+{- Natural Number Definition-}
+Inductive nat :=
+| O : nat
+| Suc : nat -> nat.
+
+{- Addition on Natural Numbers -}
+Fixpoint add (n m : nat) : nat :=
+  match n with
+  | O => m
+  | Suc n' => Suc (add n' m)
+  end.
+
+{- Commutative Property  -}
+Theorem add_commute : forall (n m : nat), add n m = add m n.
+Proof.
+  (* proof terms omitted *)
+Qed.
+
+\end{lstlisting}
+}
+
 \frame{\titlepage}
 %\section[Table of contents]{}
 %\frame{\frametitle{Table of contents}\tableofcontents[sections={2-3}]}
@@ -540,20 +567,36 @@ Lemma not_perm_persv_validity :
 \begin{frame}
 \frametitle{Talk Outline}
 \begin{itemize}
-\item Motivation
-\item Schulze Voting as Evidence Carrying Computation
-\item Scaling it to count millions ballot
-\item Verifiable Homomorphic Tallying for the Schulze Vote Counting Scheme
-\item Machine Checked Properties 
-\item Certificate : Verifying Elections Formally
+%\item Promise
+\item Background
+\item Current Status of Electronic Voting
+\item Motivation 
+\item Contribution
 \item Future Work
 \end{itemize}
 \end{frame}
 
 
+%\begin{frame}
+%\frametitle{Introduction}
+%{Free and fair elections are impossible without
+%\textbf{Privacy, Verifiability} and \textbf{Correctness}. However, 
+%it is almost next to impossible to achieve all three at the same time.}
+%
+%\end{frame}
+
 
 \begin{frame}
-\frametitle{Motivation}
+\frametitle{Background}
+%{Let me take you back in time and imagine that 
+%we in 1855. We are going to pub to cast our ballot for a democratic election. 
+%In the pub, there is counter hanging on wall which shows how many votes 
+%so far the running  candidates have. 
+%We raise our hand in the public for the candidate which offers us
+%beer or money or whatever you like. Everyone sees us to whom we 
+%voted and the person at counter increments the votes for 
+%that corresponding candidate}
+
 {Election held in 1855 in Victoria, Australia 
 	  was conducted in pub!}
 \begin{figure}
@@ -564,64 +607,371 @@ Lemma not_perm_persv_validity :
 %{\includegraphics[width=0.50\textwidth]{NorthBourke.jpg}}
 \end{frame}
 
-
 \begin{frame}
-\frametitle{Motivation}
-{2019 Election, NSW, Australia}
+\frametitle{Background}
+\begin{itemize}[]
+\item Pros 
+\begin{itemize}
+\item<.-> Correctness
+\item Verifiability
+\item Free Beer
+\end{itemize}
+\item Cons
+\begin{itemize}
+\item<.-> Corruption
+\item Intimidation
+\item Violence
+\item Unfair (women and poor were not allowed to even vote)
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+%\begin{frame}
+%  \frametitle{Embed this video https://www.youtube.com/watch?v=bWwR2CUNudA}
+%      \begin{tikzpicture}[remember picture,overlay]
+%         \node[anchor=south west, inner sep=0pt] at (current page.south west) {%
+%           \movie[height = \paperheight, width = \paperwidth, poster, showcontrols] {}{DRS2.mp4}%
+%         };
+%      \end{tikzpicture}
+%  \end{frame}
+ 
+ 
+   
+\begin{frame}
+\frametitle{Background}
+%{In order to tackle to the various problems, Australians introduce 
+% secret ballot. You go to a secluded place and vote your favourite candidate without 
+% anyone knowing.}
+ {2019 Election, NSW, Australia}
 \begin{figure}
 	\begin{center}
 	\includegraphics[scale=0.50]{image-20160525-25209-cn3ftj.jpg}
 	\end{center}
   \end{figure}   
-%{\includegraphics[width=0.50\textwidth]{NorthBourke.jpg}}
-\end{frame}
-
-\begin{frame}
-\frametitle{Motivation}
-\begin{itemize}
-\item What changed between 1855 and 2019 ? \pause
-\item From getting drunk on free beer and discussing issues of national 
-      importance, we have gone sober and eat democracy sausage! \pause
-\item Privacy \pause
-\item Verifiability \pause
-\end{itemize}
-\begin{figure}
-	\begin{center}
-	\includegraphics[scale=0.15]{scrutneers.jpg}
-	\end{center}
-  \end{figure}  
 \end{frame}
 
 
 \begin{frame}
-\frametitle{Motivation}
+\frametitle{Background}
+\begin{itemize}[]
+\item Pros 
 \begin{itemize}
-\item What about Privacy and Verifiability in electronic voting ?
+\item<.-> Privacy 
+\item Verifiability
+\item Correctness
 \end{itemize}
+\item Cons
+\begin{itemize}
+\item Sadly, no free beer
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+%
+%\begin{frame}
+%\frametitle{Background}
+%{Now that we have privacy, how do we make sure that the counting 
+%is correct and process is verifiable? Enter Scrutineers}
+%\begin{figure}
+%	\begin{center}
+%	\includegraphics[scale=0.15]{scrutneers.jpg}
+%	\end{center}
+%  \end{figure}  
+%\end{frame}
+
+
+\begin{frame}
+\frametitle{Background}
+%{Slow}
 \begin{figure}
 	\begin{center}
-	\includegraphics[scale=0.30]{e-voting_worldmap_2015.pdf}
+	\includegraphics[scale=0.25]{uk-election.png}
 	\end{center}
-  \end{figure}
+  \end{figure} 
 \end{frame}
+
+\begin{frame}
+\frametitle{Background}
+%{Costly}
+\begin{figure}
+	\begin{center}
+	\includegraphics[scale=0.25]{re-election.png}
+	\end{center}
+  \end{figure} 
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Background}
+%{Logistic Challenge}
+\begin{figure}
+	\begin{center}
+	\includegraphics[scale=0.25]{logistic.png}
+	\end{center}
+  \end{figure} 
+\end{frame}
+
+
+%
+%\begin{frame}
+%\frametitle{Background}
+%{Everything works great with paper ballot except}
+%\begin{itemize}
+%\item Slow for big countries like India
+%\item Counting is error prone for complex method like STV
+%\item Logistic challenge for sparsely populated countries Australia 
+%\end{itemize}
+%\end{frame}
+
+\begin{frame}
+\frametitle{Electronic Voting}
+%{Enter the realm of Electronic Voting}
+\begin{figure}
+\includegraphics[scale=0.20]{e-voting-map.png}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Electronic Voting}
+% {Could not configure the proper SSL certificates: FREAK Attack}
+\begin{figure}
+\includegraphics[scale=0.20]{Ausvoting.png}
+\end{figure}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Electronic Voting}
+%{Security by obscurity}
+\begin{figure}
+\includegraphics[scale=0.20]{Indiavote.png}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Electronic Voting}
+%{Parameter generation}
+\begin{figure}
+\includegraphics[scale=0.20]{swisspost.png}
+\end{figure}
+\end{frame}
+
+
+
+
+\begin{frame}
+\frametitle{Electronic Voting}
+%{Could not count properly}
+\begin{center}
+\begin{tikzpicture}
+  \node (img1) {\includegraphics[height=4cm]{counting-bug.png}};
+  \pause
+  \node (img2) at (img1.south east) {\includegraphics[height=2cm]{explanation.png}};
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+
+%\begin{frame}
+%\frametitle{Motivation}
+%\begin{figure}
+%	\begin{center}
+%	\includegraphics[scale=0.30]{e-voting_worldmap_2015.pdf}
+%	\end{center}
+%  \end{figure}
+%\end{frame}
+
+
+\begin{frame}
+\frametitle{Electronic Voting}
+{Countries in the Pink}
+\begin{figure}
+\includegraphics[scale=0.20]{e-voting-map.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{Withdrawn from Electronic Voting}
+\begin{itemize}
+\item Netherlands: Information Leakage
+\item Germany: Not Verifiable
+\end{itemize}
+\end{frame}
+
 
 \begin{frame}
 \frametitle{Motivation}
 \begin{center}
 \begin{tikzpicture}
-  \node (img1) {\includegraphics[height=4cm]{Ausvoting.png}};
+  \node (img1) {\includegraphics[height=5cm]{scytl.png}};
   \pause
-  \node (img2) at (img1.south east) {\includegraphics[height=4cm]{Indiavote.png}};
-  \pause
-  \node (img3) at (img2.south west) [yshift=1cm] {\includegraphics[height=4cm]{swisspost.png}};
+  \node (img2) at (img1.south east) {\includegraphics[height=6cm]{sarah.png}};
 \end{tikzpicture}
 \end{center}
 \end{frame}
 
 \begin{frame}
-\frametitle{Definition and Assumption}
+\frametitle{Motivation}
+\begin{itemize}
+\item Correctness
+\item Verifiability
+\item Privacy
+\end{itemize}
+\end{frame}
 
-\begin{itemize}[<+->]
+
+
+
+
+
+\begin{frame}
+\frametitle{Schulze Method}
+
+\begin{itemize}
+\item Candidate set $C$ = $\{c1,\dots,cm\}$
+ \item Vote multiset  $P$ = $\{b1,\dots,bn\}$
+ \item Vote is represented as function $b: C \rightarrow \mathbb{N}$
+
+   \begin{center}
+   
+  
+	%\begin{wrapfigure}[14]{r}[0cm]{0.4\textwidth}
+  %\begin{center}
+    %\raisebox{0pt}[-1cm]
+    \raisebox{0pt}[\dimexpr\height-0.5\baselineskip\relax]
+    {\includegraphics[width=0.37\textwidth]{bal-cropped.pdf}}
+    \raisebox{0pt}[\dimexpr\height-8.5\baselineskip\relax]{}
+     \end{center}
+    %\includegraphics[width=4cm]{ballot.png}
+  %\end{center}
+  %\end{wrapfigure}
+ \end{itemize}
+ \end{frame}
+
+
+%
+%\begin{frame}
+%\frametitle{Schulze Method}
+%\begin{itemize}
+%
+%
+%%\item The \emph{margin function} $m(c, d)$ as the number of
+%\item ballots that strictly prefer $c$ over $d$, minus the number of
+%         ballots that strictly prefer $d$ over $c$\pause
+%\item Schulze voting considers \emph{paths} of the form \[\xymatrix@C=10ex{ c_1  \ar[r]^{m(c_1, c_2)} & c_2   \ar[r]^{m(c_2,c_3)} & c_3 \ar@{}[r]|{\dots} & c_{n-1}   \ar[r]^{m(c_{n-1}, c_n)} & c_n } \]\pause
+%\item  Path-based margin  between $c_1$ and $c_n$ is $\min \lbrace m(c_i, c_{i+1} \mid 1 \leq i < n \rbrace$\pause 
+%\item The \emph{generalised margin} between two candidates $c$ and $d$ is the largest path-based margin considering all possible paths between $c$ and $d$.
+%
+%\end{itemize}
+%\end{frame}
+
+\begin{frame}
+\frametitle{Schulze Method}
+\begin{itemize}
+
+\item Construct a margin function (matrix) $m: C \times C \to \mathbb{Z}$. 
+
+\[
+  m(c, d) = \sharp \lbrace b \in P \mid c >_b d \rbrace -
+            \sharp \lbrace b \in P \mid d >_b c \rbrace
+\] 
+\item We will interpret the margin function m as a graph, say G.
+\end{itemize}
+\end{frame}
+
+%\begin{frame}
+%\frametitle{Schulze Method}
+%\begin{itemize}
+%\item Example of Graph G (collective preferences can be cyclic, even if the preferences of individual voters are not cyclic). The main idea of the method is to resolve cycles by considering \emph{transitive preferences} or a generalised notion of margin.
+%\[
+%\xymatrix@R=12ex@C=12ex{
+%A \ar@/^/[rr]^{3} \ar@/_/[dr]_{-1} & & B \ar@/^/[ll]^{-3}
+%\ar@/^/[dl]^5 \\
+%& C \ar@/_/[ul]_{1} \ar@/^/[ur]^{-5}
+%}\]
+%\end{itemize}
+%\end{frame}
+
+
+\begin{frame}
+\frametitle{Schulze Method}
+\begin{itemize}
+
+\item A directed \emph{path} in $G$ from
+candidate $c$ to candidate $d$ is a sequence 
+%$p \equiv c_0, \dots, c_{n+1}$
+%of candidates with $c_0 = c$ and $c_{n+1} = d$ ($n \geq 0$)
+ \[\xymatrix@C=10ex{ c  \ar[r]^{m(c, c_1)} & c_1   \ar[r]^{m(c_1,c_2)} & c_2 \ar@{}[r]|{\dots} & c_{n}   \ar[r]^{m(c_{n}, d)} & d } \]
+
+\item The strength, st, of a path in $G$ is
+\[ st(c_0, \dots, c_{n+1}) = \min \lbrace m (c_i, c_{i+1}) \mid 0
+\leq i \leq n \rbrace. \]
+%
+% and the
+%\emph{strength}, st, of path, p, is the minimum margin of adjacent
+%nodes, i.e.
+%\[ st(c_0, \dots, c_{n+1}) = \min \lbrace m (c_i, c_{i+1}) \mid 0
+%\leq i \leq n \rbrace. \]
+% \[\xymatrix@C=10ex{ c_0  \ar[r]^{m(c_0, c_1)} & c_1   \ar[r]^{m(c_1,c_2)} & c_2 \ar@{}[r]|{\dots} & c_{n}   \ar[r]^{m(c_{n}, c_{n + 1})} & c_{n+1} } \]
+%\item We compute the generalized margin, $M$, between two candidate $c$ $d$ as 
+%  	\[ M(c, d) = \max \lbrace st (p) : \text{p is path from c to d in G} \rbrace\]
+%
+%%For candidates c and d, let $S(c, d)$ denote the maximum strength, or generalized margin of a path
+%%	from c to d i.e. 
+%%	\[ S(c, d) = \max \lbrace st (p) : \text{p is path from c to d in G} \rbrace\]
+%%	
+%\item The winning set (always non empty) is defined as 
+% \[ W =  \lbrace c \in C : \forall d \in C \setminus \{c\}, S (c, d) \geq S (d, c) \rbrace\]
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Schulze Method}
+\begin{itemize}
+\item We compute the generalized margin, $M$, between two candidate $c$ $d$ as 
+  	\[ M(c, d) = \max \lbrace st (p) : \text{p is path from c to d in G} \rbrace\]
+ 
+ \item  	The winning set is defined as 
+ \[ W =  \lbrace c \in C : \forall d \in C \setminus \{c\}, M (c, d) \geq M (d, c) \rbrace\]
+
+
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Correctness}
+\begin{center}
+\begin{tikzpicture}
+  \node (img1) {\includegraphics[height=6cm]{coq.png}};
+%  \pause
+%  \node (img2) at (img1.south east) {\includegraphics[height=6cm]{coq.png}};
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\frametitle{Coq in Action}
+{Natural Number with addition function and proof of 
+commutativity and associativity}
+\lsteighteen
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Coq in Action}
+{Graph Theory}
+\lstf
+\end{frame}
+
+\begin{frame}
+\frametitle{Verifiability (Assumption)}
+\begin{itemize}
 \item End to End verifiability
 \begin{itemize}
   \item<.-> every voter can verify that their ballot was cast as
@@ -633,25 +983,113 @@ Lemma not_perm_persv_validity :
 \end{itemize}
 
 %\item We are not concern with any front end activity
-\item We assume first two part of "End to End verifiability" and work on
+\item We assume first two part of \textit{End to End verifiability} and work on
       third part.
+\end{itemize}
+\end{frame}
 
+
+
+\begin{frame}
+\frametitle{Verifiability by Scrutiny Sheet}
+\lstnineth
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Privacy by Homomorphic Encryption}
+\begin{itemize}
+\item A encryption scheme is homomorphic if for any two plaintext $x$ and $y$:
+$Enc_{pk}(x) \bigotimes Enc_{pk}(y) = Enc_{pk} (x \bigoplus y)$
+\item $Enc(m_{1}, r_{1}) := (g^{r_{1}}, g^{m_{1}} *  h^{r_{1}})$ 
+\item $Enc(m_{2}, r_{2}) := (g^{r_{2}}, g^{m_{2}} *  h^{r_{2}})$
+\item  $Enc(m_{1}, r_{1})  * Enc(m_{2}, r_{2}) $ =  ($g^{r_{1} + r_{2}}$, $g^{m_{1} + m_{2}} * h^{r_{1} + r_{2}}$) 		
+		
 \end{itemize}
 \end{frame}
 
 \begin{frame}
-\frametitle{Schulze Voting as Evidence Carrying Computation [ITP 2017]}
-\begin{itemize}[<+->]
+\frametitle{In Reality, it looks more messy}
+$g = 4, h = 49228593607874990954666071614777776087$
+ (134496451437300221012286033361707130093, 102227210111257780065764179227658264107)
+ 
+ (90549562016409048906553052880573051723, 149737664809130232173423485580305447580)
+  
+ (111838646913099268144525651231935275385, 23076766166773179621624801755228562722) 
+ 
+ (163609675266885117507253145530469574507, 136840925491933116006881481565552266698)
+% (79248907920406812537389036699896088139, 46347343081571464310476936648567024138)
+% (123866687819159436288533311854341351671, 147511135596830390870297120177829059519)
+% (50398592318313244808461064689068665943, 53262724480261770219974712577122611417)
+% (7017345267197193636466005866496039911, 68311911432471947228868781091036768394)
+% (23649424831721765685116725354379513587, 82314118594242117678180792762644770882)
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Zero-Knowledge-Proof}
+{Did you all trust me when I claimed that the all the values are encryption of 0?}
+\begin{figure}
+\includegraphics[scale=0.30]{pilot.png}
+\end{figure}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Zero-Knowledge-Proof}
+\begin{itemize}
+\item Given a public parameters $(G, g, p, h)$ and private parameter $x$ such that $h := g^x$.
+\item Claim: message $m$  is honest decryption of $(c_{1}, c_{2})$ (where $c_{1} = g^r$ and $c_{2} = g^{m} * h^{r}$)
+\item Proof: $(g, h, c_{1}, c_{2} \cdot g^{-m})$ is a \textit{Diffie Hellman} tuple 
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Zero-Knowledge-Proof}
+\textbf{Diffie Hellman Tuple:} a tuple $(g, h, u, v)$ is 
+ a \textit{Diffie Hellman} tuple if there $\exists$ $w \mid$
+ $u = g^w \land v = h^w$. 
+ 
+ \begin{itemize}
+ \item $P$ chooses a random $r$ and sends $a=g^r$ and $b = h^r$.
+ \item $V$ sends a random $e$
+ \item $P$ sends $z =r + e \cdot w$
+ \item $V$ check $g^z = a \cdot u^e$ and $h^z = b\cdot v^e$ 
+ \end{itemize}
+ $g^z = g^{r + e \cdot w} = a \cdot (g^w)^e = a \cdot u^e $\\
+ $h^z = h^{r + e \cdot w} = b \cdot (h^w)^e = b \cdot v^e$
+\end{frame}
+
+\begin{frame}
+\frametitle{Zero-Knowledge-Proof}
+{Claimed: $(g, h, c_{1}, c_{2} \cdot g^{-m})$ is a \textit{Diffie Hellman} tuple}
+$(g, h, c_{1}, c_{2} \cdot g^{-m})$\\
+$ = (g, h, g^r, g^m \cdot h^r \cdot g^{-m})$ \\
+$ = (g, h, g^r, h^r)$ \\
+$ = (g, h, u, v)$\\ 
+{Could I have faked it?} \\
+$(g, h, g^r, g^m \cdot h^r \cdot g^{-m_{1}})$ \\
+$ = (g, h, g^r, h^r \cdot g^{m - m_{1}})$
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Schulze Voting as Evidence Carrying Computation}
+\begin{itemize}[]
 \item Pros 
 \begin{itemize}
-\item<.-> Formally verified implementation in Coq
+\item Formally verified implementation in Coq
 \item Verifiable because we generate certificate
 \item Certificates are accessible to anyone with 
       basic math literacy
 \end{itemize}
 \item Cons
 \begin{itemize}
-\item<.-> Horribly slow and not practical for real life election
+\item Horribly slow and not practical for real life election
 \item No privacy and possibly susceptible to coercion
 \end{itemize}
 \end{itemize}
@@ -659,11 +1097,11 @@ Lemma not_perm_persv_validity :
 
 
 \begin{frame}
-\frametitle{Scaling it to count millions ballot [Evote 2017]}
-\begin{itemize}[<+->]
+\frametitle{Scaling it to count millions ballot }
+\begin{itemize}[]
 \item Pros 
 \begin{itemize}
-\item<.-> Formally verified implementation in Coq
+\item Formally verified implementation in Coq
 \item Verifiable because we generate certificate
 \item Certificates are accessible to anyone with 
       basic math literacy
@@ -674,24 +1112,16 @@ Lemma not_perm_persv_validity :
 \item No privacy and possibly susceptible to coercion
 \end{itemize}
 \end{itemize}
-
-%\begin{itemize}
-%\item Source code formally verified in Coq
-%\item Verifiable because we generate certificate 
-%\item Blazing fast
-%\item Shortcomings
-%\item No privacy
-%\end{itemize}
 \end{frame}
 
 
 
 \begin{frame}
-\frametitle{Verifiable Homomorphic Tallying for the Schulze Vote Counting Scheme [VSTTE 2019]}
-\begin{itemize}[<+->]
+\frametitle{Verifiable Homomorphic Tallying for the Schulze Vote Counting Scheme}
+\begin{itemize}[]
 \item Pros 
 \begin{itemize}
-\item<.-> Formally verified implementation in Coq assuming axioms on 
+\item Formally verified implementation in Coq assuming axioms on 
           the cryptographic primitives 
 \item Verifiable because we generate certificate 
 \item Privacy because we don't reveal the content of ballots
@@ -708,17 +1138,7 @@ Lemma not_perm_persv_validity :
 
 
 \begin{frame}
-\frametitle{Machine Check Properties [On Going CPP 2020 ?]}
-\begin{itemize}
-\item Condercet Winner (Finished)
-\item Reversal symmetry (Almost There)
-\item Monotonicity
-\item Smith Set
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{Certificate : Verifying Elections Formally [CCS 2019]}
+\frametitle{Certificate : Verifying Elections Formally}
 \begin{itemize}
 \item We developed a general framework for Sigma Protocol
 \item Instantiate with IACR 2018 election data
@@ -727,6 +1147,55 @@ Lemma not_perm_persv_validity :
 \end{itemize}
 \end{frame}
 
+
+
+\begin{frame}
+\frametitle{Machine Check Properties}
+\begin{itemize}
+\item Condercet Winner (Finished)
+\item Reversal symmetry (Finished)
+\item Monotonicity
+\item Smith Set
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Future Work}
+\begin{itemize}
+\item Formalizing cryptographic code (Shuffle Proof)
+\item Formalizing the properties of Schulze method
+\item Formally verified checker 
+\item Risk Limiting Audit 
+\item Formalizing Code Extraction (Not related to our project, but highly needed for electronic voting)
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Publications}
+\begin{enumerate}
+	\item Pattinson, D. and Tiwari, M., 2017. Schulze Voting as Evidence carrying computation. In Proc. 
+	ITP 2017, vol. 10499 of Lecture Notes in Computer Science, 410–426. Springer. 
+	\item Lyria Bennett Moses, Rajeev Goré, Ron Levy, Dirk Pattinson, Mukesh Tiwari.
+	No More Excuses: Automated Synthesis of Practical and Verifiable Vote-Counting Programs for Complex 
+	Voting 	Schemes. E-VOTE-ID 2017: 66-83
+	\item Thomas Haines, Dirk Pattinson, and Mukesh Tiwari. 2019. 
+	  Verifiable Homomorphic Tallying for the Schulze Vote Counting Scheme. 
+	  11th International Conference Verified Software: Theories, Tools, and Experiments. 
+      VSTTE 2019 (to appear)	
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}
+\frametitle{Publications}
+\begin{enumerate}
+	 
+	\item Thomas Haines, Rajeev Goré, and Mukesh Tiwari. 2019. Verified Verifiers for Verifying Elections. 
+	 In Proceedings of the 2019 ACM SIGSAC Conference on Computer and Communications Security (CCS '19)
+	 
+	 \item Milad K. Ghale, Rajeev Goré, Dirk Pattinson, Mukesh Tiwari.
+	Modular Formalisation and Verification of STV Algorithms. E-Vote-ID 2018: 51-66
+	\end{enumerate}
+\end{frame}
 %
 %
 %\begin{frame}
@@ -765,7 +1234,7 @@ Lemma not_perm_persv_validity :
 %\item The main idea of the method is to resolve cycles by considering \emph{transitive preferences} or a generalised notion of margin.
 %\end{itemize}
 %\end{frame}
-
+%
 %\begin{frame}
 %\frametitle{Schulze Method}
 %
@@ -785,14 +1254,14 @@ Lemma not_perm_persv_validity :
 %    %\includegraphics[width=4cm]{ballot.png}
 %  %\end{center}
 %  %\end{wrapfigure}
-
-
-
-
-
-
-
-%\item The \emph{margin function} $m(c, d)$ as the number of
+%
+%
+%
+%
+%
+%
+%
+%%\item The \emph{margin function} $m(c, d)$ as the number of
 %ballots that strictly prefer $c$ over $d$, minus the number of
 %ballots that strictly prefer $d$ over $c$\pause
 %\item Schulze voting considers \emph{paths} of the form \[\xymatrix@C=10ex{ c_1  \ar[r]^{m(c_1, c_2)} & c_2   \ar[r]^{m(c_2,c_3)} & c_3 \ar@{}[r]|{\dots} & c_{n-1}   \ar[r]^{m(c_{n-1}, c_n)} & c_n } \]\pause
@@ -801,8 +1270,8 @@ Lemma not_perm_persv_validity :
 %
 %\end{itemize}
 %\end{frame}
-
 %
+%%
 %\begin{frame}
 %\frametitle{Schulze Method}
 %\begin{itemize}
@@ -1061,11 +1530,11 @@ Lemma not_perm_persv_validity :
 %
 %\end{itemize}
 %\end{frame}
-
-\begin{frame}
-\frametitle{Certificate}
-\lstnineth
-\end{frame}
+%
+%\begin{frame}
+%\frametitle{Certificate}
+%\lstnineth
+%\end{frame}
 
 %\begin{frame}
 %\frametitle{Certificate}
@@ -1181,16 +1650,16 @@ Lemma not_perm_persv_validity :
 %\lstsixteen
 %\end{frame}
 
-
-\begin{frame}
-\frametitle{Future Work}
-\begin{itemize}
-\item See all of you again in December of final presentation [December 2019]
-\item Risk limiting audit
-\item Verifying the cryptographic code
-\end{itemize}
-
-\end{frame}
+%
+%\begin{frame}
+%\frametitle{Future Work}
+%\begin{itemize}
+%\item See all of you again in December of final presentation [December 2019]
+%\item Risk limiting audit
+%\item Verifying the cryptographic code
+%\end{itemize}
+%
+%\end{frame}
 
 \begin{frame}
 \begin{center}
